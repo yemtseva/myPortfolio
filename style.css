@@ -1136,10 +1136,10 @@ figure a .text-overlay .info span {
 }
 .hint--right:before {
     margin-left: 0px;
-    margin-bottom: -4px;
+    margin-bottom: 13px;
 }
 .hint--right:after {
-    margin-bottom: -19px
+    margin-bottom: 0px
 }
 .hint--top:before {
     margin-bottom: -5px;
