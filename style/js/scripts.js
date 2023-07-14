@@ -238,7 +238,7 @@ jQuery(document).ready(function() {
 });
 /*-----------------------------------------------------------------------------------*/
 /*	CUBE projects
-/*-----------------------------------------------------------------------------------*/
+*/
 (function($, window, document, undefined) {
     'use strict';
     var gridContainer = $('#grid-container'),
@@ -422,7 +422,375 @@ jQuery(document).ready(function() {
     });
 
 })(jQuery, window, document);
+
 /*-----------------------------------------------------------------------------------*/
+(function($, window, document, undefined) {
+    'use strict';
+    var gridContainer = $('#grid-container2'),
+        filtersContainer = $('#filters-container2'),
+        wrap, filtersCallback;
+    /*********************************
+        init cubeprojects
+     *********************************/
+    gridContainer.cubeprojects({
+        layoutMode: 'grid',
+        rewindNav: true,
+        scrollByPage: false,
+        defaultFilter: '.responsive',
+        animationType: 'quicksand',
+        gapHorizontal: 10,
+        gapVertical: 10,
+        gridAdjustment: 'responsive',
+        mediaQueries: [{
+            width: 1300,
+            cols: 4
+        }, {
+            width: 1300,
+            cols: 3
+        }, {
+            width: 1300,
+            cols: 2
+        }, {
+            width: 1300,
+            cols: 1
+        }],
+        caption: 'fadeIn',
+        displayType: 'sequentially',
+        displayTypeSpeed: 100,
+
+        // singlePage popup
+        singlePageDelegate: '.cbp-singlePage',
+        singlePageDeeplinking: true,
+        singlePageStickyNavigation: true,
+        singlePageCounter: '',
+        singlePageCallback: function(url, element) {
+            // to update singlePage content use the following method: this.updateSinglePage(yourContent)
+
+
+			$('a[data-rel]').each(function () {
+    $(this).attr('rel', $(this).data('rel'));
+});
+
+            var t = this;
+
+            $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'html',
+                    timeout: 5000
+                })
+                .done(function(result) {
+                    t.updateSinglePage(result);
+                })
+                .fail(function() {
+                    t.updateSinglePage("Error! Please refresh the page!");
+                });
+        }
+    });
+
+
+    /*********************************
+        add listener for filters
+     *********************************/
+    if (filtersContainer.hasClass('cbp-l-filters-dropdown')) {
+        wrap = filtersContainer.find('.cbp-l-filters-dropdownWrap');
+
+        wrap.on({
+            'mouseover.cbp': function() {
+                wrap.addClass('cbp-l-filters-dropdownWrap-open');
+            },
+            'mouseleave.cbp': function() {
+                wrap.removeClass('cbp-l-filters-dropdownWrap-open');
+            }
+        });
+
+        filtersCallback = function(me) {
+            wrap.find('.cbp-filter-item-custom').removeClass('cbp-filter-item-custom-active');
+            wrap.find('.cbp-l-filters-dropdownHeader').text(me.text());
+            me.addClass('cbp-filter-item-custom-active');
+            wrap.trigger('mouseleave.cbp');
+        };
+    } else {
+        filtersCallback = function(me) {
+            me.addClass('cbp-filter-item-custom-active').siblings().removeClass('cbp-filter-item-custom-active');
+        };
+    }
+
+    filtersContainer.on('click.cbp', '.cbp-filter-item-custom', function() {
+        var me = $(this);
+
+        if (me.hasClass('cbp-filter-item-custom-active')) {
+            return;
+        }
+
+        // get cubeprojects data and check if is still animating (reposition) the items.
+        if (!$.data(gridContainer[0], 'cubeprojects').isAnimating) {
+            filtersCallback.call(null, me);
+        }
+
+        // filter the items
+        gridContainer.cubeprojects('filter', me.data('filter'), function() {});
+    });
+
+
+    /*********************************
+        activate counter for filters
+     *********************************/
+    gridContainer.cubeprojects('showCounter', filtersContainer.find('.cbp-filter-item-custom'), function() {
+        // read from url and change filter active
+        var match = /#cbpf=(.*?)([#|?&]|$)/gi.exec(location.href),
+            item;
+        if (match !== null) {
+            item = filtersContainer.find('.cbp-filter-item-custom').filter('[data-filter="' + match[1] + '"]');
+            if (item.length) {
+                filtersCallback.call(null, item);
+            }
+        }
+    });
+
+
+    /*********************************
+        add listener for load more
+     *********************************/
+    $('.cbp-l-loadMore-button-link').on('click.cbp', function(e) {
+        e.preventDefault();
+        var clicks, me = $(this),
+            oMsg;
+
+        if (me.hasClass('cbp-l-loadMore-button-stop')) {
+            return;
+        }
+
+        // get the number of times the loadMore link has been clicked
+        clicks = $.data(this, 'numberOfClicks');
+        clicks = (clicks) ? ++clicks : 1;
+        $.data(this, 'numberOfClicks', clicks);
+
+        // set loading status
+        oMsg = me.text();
+        me.text('LOADING...');
+
+        // perform ajax request
+        $.ajax({
+            url: me.attr('href'),
+            type: 'GET',
+            dataType: 'HTML'
+        }).done(function(result) {
+            var items, itemsNext;
+
+            // find current container
+            items = $(result).filter(function() {
+                return $(this).is('div' + '.cbp-loadMore-block' + clicks);
+            });
+
+            gridContainer.cubeprojects('appendItems', items.html(),
+                function() {
+                    // put the original message back
+                    me.text(oMsg);
+
+                    // check if we have more works
+                    itemsNext = $(result).filter(function() {
+                        return $(this).is('div' + '.cbp-loadMore-block' + (clicks + 1));
+                    });
+
+                    if (itemsNext.length === 0) {
+                        me.text('NO MORE WORKS');
+                        me.addClass('cbp-l-loadMore-button-stop');
+                    }
+
+                });
+
+        }).fail(function() {
+            // error
+        });
+
+    });
+
+})(jQuery, window, document);
+/*-----------------------------------------------------------------------------------*/
+(function($, window, document, undefined) {
+    'use strict';
+    var gridContainer = $('#grid-container3'),
+        filtersContainer = $('#filters-container3'),
+        wrap, filtersCallback;
+    /*********************************
+        init cubeprojects
+     *********************************/
+    gridContainer.cubeprojects({
+        layoutMode: 'grid',
+        rewindNav: true,
+        scrollByPage: false,
+        defaultFilter: '.architecture',
+        animationType: 'quicksand',
+        gapHorizontal: 10,
+        gapVertical: 10,
+        gridAdjustment: 'responsive',
+        mediaQueries: [{
+            width: 1300,
+            cols: 4
+        }, {
+            width: 1300,
+            cols: 3
+        }, {
+            width: 1300,
+            cols: 2
+        }, {
+            width: 1300,
+            cols: 1
+        }],
+        caption: 'fadeIn',
+        displayType: 'sequentially',
+        displayTypeSpeed: 100,
+
+        // singlePage popup
+        singlePageDelegate: '.cbp-singlePage',
+        singlePageDeeplinking: true,
+        singlePageStickyNavigation: true,
+        singlePageCounter: '',
+        singlePageCallback: function(url, element) {
+            // to update singlePage content use the following method: this.updateSinglePage(yourContent)
+
+
+			$('a[data-rel]').each(function () {
+    $(this).attr('rel', $(this).data('rel'));
+});
+
+            var t = this;
+
+            $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'html',
+                    timeout: 5000
+                })
+                .done(function(result) {
+                    t.updateSinglePage(result);
+                })
+                .fail(function() {
+                    t.updateSinglePage("Error! Please refresh the page!");
+                });
+        }
+    });
+
+
+    /*********************************
+        add listener for filters
+     *********************************/
+    if (filtersContainer.hasClass('cbp-l-filters-dropdown')) {
+        wrap = filtersContainer.find('.cbp-l-filters-dropdownWrap');
+
+        wrap.on({
+            'mouseover.cbp': function() {
+                wrap.addClass('cbp-l-filters-dropdownWrap-open');
+            },
+            'mouseleave.cbp': function() {
+                wrap.removeClass('cbp-l-filters-dropdownWrap-open');
+            }
+        });
+
+        filtersCallback = function(me) {
+            wrap.find('.cbp-filter-item-custom').removeClass('cbp-filter-item-custom-active');
+            wrap.find('.cbp-l-filters-dropdownHeader').text(me.text());
+            me.addClass('cbp-filter-item-custom-active');
+            wrap.trigger('mouseleave.cbp');
+        };
+    } else {
+        filtersCallback = function(me) {
+            me.addClass('cbp-filter-item-custom-active').siblings().removeClass('cbp-filter-item-custom-active');
+        };
+    }
+
+    filtersContainer.on('click.cbp', '.cbp-filter-item-custom', function() {
+        var me = $(this);
+
+        if (me.hasClass('cbp-filter-item-custom-active')) {
+            return;
+        }
+
+        // get cubeprojects data and check if is still animating (reposition) the items.
+        if (!$.data(gridContainer[0], 'cubeprojects').isAnimating) {
+            filtersCallback.call(null, me);
+        }
+
+        // filter the items
+        gridContainer.cubeprojects('filter', me.data('filter'), function() {});
+    });
+
+
+    /*********************************
+        activate counter for filters
+     *********************************/
+    gridContainer.cubeprojects('showCounter', filtersContainer.find('.cbp-filter-item-custom'), function() {
+        // read from url and change filter active
+        var match = /#cbpf=(.*?)([#|?&]|$)/gi.exec(location.href),
+            item;
+        if (match !== null) {
+            item = filtersContainer.find('.cbp-filter-item-custom').filter('[data-filter="' + match[1] + '"]');
+            if (item.length) {
+                filtersCallback.call(null, item);
+            }
+        }
+    });
+
+
+    /*********************************
+        add listener for load more
+     *********************************/
+    $('.cbp-l-loadMore-button-link').on('click.cbp', function(e) {
+        e.preventDefault();
+        var clicks, me = $(this),
+            oMsg;
+
+        if (me.hasClass('cbp-l-loadMore-button-stop')) {
+            return;
+        }
+
+        // get the number of times the loadMore link has been clicked
+        clicks = $.data(this, 'numberOfClicks');
+        clicks = (clicks) ? ++clicks : 1;
+        $.data(this, 'numberOfClicks', clicks);
+
+        // set loading status
+        oMsg = me.text();
+        me.text('LOADING...');
+
+        // perform ajax request
+        $.ajax({
+            url: me.attr('href'),
+            type: 'GET',
+            dataType: 'HTML'
+        }).done(function(result) {
+            var items, itemsNext;
+
+            // find current container
+            items = $(result).filter(function() {
+                return $(this).is('div' + '.cbp-loadMore-block' + clicks);
+            });
+
+            gridContainer.cubeprojects('appendItems', items.html(),
+                function() {
+                    // put the original message back
+                    me.text(oMsg);
+
+                    // check if we have more works
+                    itemsNext = $(result).filter(function() {
+                        return $(this).is('div' + '.cbp-loadMore-block' + (clicks + 1));
+                    });
+
+                    if (itemsNext.length === 0) {
+                        me.text('NO MORE WORKS');
+                        me.addClass('cbp-l-loadMore-button-stop');
+                    }
+
+                });
+
+        }).fail(function() {
+            // error
+        });
+
+    });
+
+})(jQuery, window, document);
 /*	ISOTOPE
 /*-----------------------------------------------------------------------------------*/
 $( function() {
