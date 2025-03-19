@@ -183,22 +183,6 @@ $(window).load(function() { // makes sure the whole site is loaded
 /*-----------------------------------------------------------------------------------*/
 /*	STICKY HEADER
 /*-----------------------------------------------------------------------------------*/
-function init() {
-"use strict";
-        window.addEventListener('scroll', function(e){
-            var distanceY = window.pageYOffset || document.documentElement.scrollTop,
-                shrinkOn = 50,
-                header = document.querySelector(".navbar");
-            if (distanceY > shrinkOn) {
-                classie.add(header,"fixed");
-            } else {
-                if (classie.has(header,"fixed")) {
-                    classie.remove(header,"fixed");
-                }
-            }
-        });
-    }
-    window.onload = init();
 
 /*-----------------------------------------------------------------------------------*/
 /*	SCROLL NAVIGATION HIGHLIGHT
